@@ -6,14 +6,14 @@ Copyright (c) Realtek Semiconductor Corp. All rights reserved.
 
 Module Name:
 	HalPrecomp.h
-	
+
 Abstract:
 	Defined HAL Configure
-	    
+
 Major Change History:
 	When       Who               What
 	---------- ---------------   -------------------------------
-	2012-03-23 Filen            Create.	
+	2012-03-23 Filen            Create.
 --*/
 
 //Avoid Recusive include, confused with Driver
@@ -30,6 +30,7 @@ Major Change History:
 
 #include "Include/PlatformDef.h"
 #include "Include/GeneralDef.h"
+
 
 //Driver Configuration & Input
 #include "HalCfg.h"

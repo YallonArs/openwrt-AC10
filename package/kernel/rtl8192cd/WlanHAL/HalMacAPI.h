@@ -6,15 +6,15 @@ Copyright (c) Realtek Semiconductor Corp. All rights reserved.
 
 Module Name:
 	HalMacFunc.h
-	
+
 Abstract:
-	Define MAC function support 
+	Define MAC function support
 	for Driver
-	    
+
 Major Change History:
 	When       Who               What
 	---------- ---------------   -------------------------------
-	2015-07-07 Eric            Create.	
+	2015-07-07 Eric            Create.
 --*/
 
 
@@ -34,16 +34,16 @@ VOID HALAPI_W8(VOID *pDriver_adapter,u32 offset,u8 value);
 VOID HALAPI_W16(VOID *pDriver_adapter,u32 offset,u16 value);
 VOID HALAPI_W32(VOID *pDriver_adapter,u32 offset,u32 value);
 u8 HALAPI_PRINT(VOID *pDriver_adapter,u32 msg_type,u8 msg_level,s8* lpszFormat,...);
-VOID HALAPI_MALLOC(VOID *pDriver_adapter,u32 ms);
+VOID* HALAPI_MALLOC(VOID *pDriver_adapter,u32 ms);
 VOID HALAPI_FREE(VOID *pDriver_adapter,VOID *pBuf,u32 size);
 VOID HALAPI_MEMCPY(VOID *pDriver_adapter,VOID *dest,VOID *src,u32 size);
 VOID HALAPI_MEMSET(VOID *pDriver_adapter,VOID *pAddress,u8 value,u32 size);
 VOID HALAPI_DELAY_US(VOID *pDriver_adapter,u32 us);
 VOID HALAPI_MSLEEP(VOID *pDriver_adapter,u32 ms);
-VOID HALAPI_MUTEX_INIT(VOID *pDriver_adapter,HALMAC_MUTEX *pMutex);   
+VOID HALAPI_MUTEX_INIT(VOID *pDriver_adapter,HALMAC_MUTEX *pMutex);
 VOID HALAPI_MUTEX_DEINIT(VOID *pDriver_adapter,HALMAC_MUTEX *pMutex);
-VOID HALAPI_MUTEX_LOCK(VOID *pDriver_adapter,HALMAC_MUTEX *pMutex); 
-VOID HALAPI_MUTEX_UNLOCK(VOID *pDriver_adapter,HALMAC_MUTEX *pMutex);   
+VOID HALAPI_MUTEX_LOCK(VOID *pDriver_adapter,HALMAC_MUTEX *pMutex,unsigned long * pflag);
+VOID HALAPI_MUTEX_UNLOCK(VOID *pDriver_adapter,HALMAC_MUTEX *pMutex,unsigned long * pflag);
 VOID HALAPI_EVENT_INDICATION(VOID *pDriver_adapter,HALMAC_FEATURE_ID feature_id,HALMAC_CMD_PROCESS_STATUS process_status,u8* buf, u32 size);
 
 

@@ -133,56 +133,31 @@ static char *ID2STR(int id)
 
 #endif // DEBUG_PSK
 
-static OCTET_STRING SubStr(OCTET_STRING f, unsigned short s, unsigned short l)
-{
-	OCTET_STRING res;
-
-	res.Length = l;
-	res.Octet = f.Octet+s;
-	return res;
-}
-
-static void i_P_SHA1(
-	unsigned char*  key,                // pointer to authentication key
-	int             key_len,            // length of authentication key
-	unsigned char*  text,               // pointer to data stream
-	int             text_len,           // length of data stream
-	unsigned char*  digest,             // caller digest to be filled in
-	int				digest_len			// in byte
-	)
-{
-	int i;
-	int offset=0;
-	int step=20;
-	int IterationNum=(digest_len+step-1)/step;
-
-	for(i=0;i<IterationNum;i++)
-	{
-		text[text_len]=(unsigned char)i;
-		hmac_sha(key,key_len,text,text_len+1,digest+offset,step);
-		offset+=step;
-	}
-}
-
-static void i_PRF(
-	unsigned char*	secret,
-	int				secret_len,
-	unsigned char*	prefix,
-	int				prefix_len,
-	unsigned char*	random,
-	int				random_len,
-	unsigned char*  digest,             // caller digest to be filled in
-	int				digest_len			// in byte
-	)
-{
-	unsigned char data[1000];
-	memcpy(data,prefix,prefix_len);
-	data[prefix_len++]=0;
-	memcpy(data+prefix_len,random,random_len);
-	i_P_SHA1(secret,secret_len,data,prefix_len+random_len,digest,digest_len);
-}
+//not used
+// static void i_P_SHA1(
+// 	unsigned char*  key,                // pointer to authentication key
+// 	int             key_len,            // length of authentication key
+// 	unsigned char*  text,               // pointer to data stream
+// 	int             text_len,           // length of data stream
+// 	unsigned char*  digest,             // caller digest to be filled in
+// 	int				digest_len			// in byte
+// 	)
+// {
+// 	int i;
+// 	int offset=0;
+// 	int step=20;
+// 	int IterationNum=(digest_len+step-1)/step;
+// 
+// 	for(i=0;i<IterationNum;i++)
+// 	{
+// 		text[text_len]=(unsigned char)i;
+// 		hmac_sha(key,key_len,text,text_len+1,digest+offset,step);
+// 		offset+=step;
+// 	}
+// }
 
 
+#if	(defined(WIFI_HAPD) || defined(RTK_NL80211)) && defined(WDS)
 /*
  * F(P, S, c, i) = U1 xor U2 xor ... Uc
  * U1 = PRF(P, S || Int(i))
@@ -256,7 +231,7 @@ static int PasswordHash (
 	F(password, passwordlength, ssid, ssidlength, 4096, 2, &output[A_SHA_DIGEST_LEN]);
 	return 1;
 }
-
+#endif
 void ConstructIE(struct rtl8192cd_priv *priv, unsigned char *pucOut, int *usOutLen)
 {
 	DOT11_RSN_IE_HEADER dot11RSNIEHeader = { 0 };
@@ -426,7 +401,7 @@ void ConstructIE(struct rtl8192cd_priv *priv, unsigned char *pucOut, int *usOutL
 #ifdef RTK_NL80211
 		for (ulIndex=0; ulIndex<priv->wpa_global_info->NumOfUnicastCipherWPA2; ulIndex++)
 		{
-			int i = priv->wpa_global_info->NumOfUnicastCipherWPA2 - ulIndex - 1; 
+			int i = priv->wpa_global_info->NumOfUnicastCipherWPA2 - ulIndex - 1;
 			pDot11RSNPairwiseSuite->dot11RSNIESuite[usSuitCount].OUI[0] = 0x00;
 			pDot11RSNPairwiseSuite->dot11RSNIESuite[usSuitCount].OUI[1] = 0x0F;
 			pDot11RSNPairwiseSuite->dot11RSNIESuite[usSuitCount].OUI[2] = 0xAC;
@@ -518,22 +493,6 @@ void ConstructIE(struct rtl8192cd_priv *priv, unsigned char *pucOut, int *usOutL
    	}
 #endif // RTL_WPA2
 
-}
-
-static int MIN(unsigned char *ucStr1, unsigned char *ucStr2, unsigned int ulLen)
-{
-	int i;
-	for (i=0 ; i<ulLen ; i++) {
-		if ((unsigned char)ucStr1[i] < (unsigned char)ucStr2[i])
-				return -1;
-		else if((unsigned char)ucStr1[i] > (unsigned char)ucStr2[i])
-			return 1;
-		else if(i == ulLen - 1)
-  			return 0;
-		else
-			continue;
-	}
-	return 0;
 }
 
 static int parseIE(struct rtl8192cd_priv *priv, WPA_STA_INFO *pInfo,
@@ -1140,18 +1099,18 @@ void wds_psk_set(struct rtl8192cd_priv *priv, int idx, unsigned char *key)
 
 	if (key == NULL) {
 		if (strlen(priv->pmib->dot11WdsInfo.wdsPskPassPhrase) == 64) // hex
-			get_array_val(priv->pmib->dot11WdsInfo.wdsMapingKey[idx], priv->pmib->dot11WdsInfo.wdsPskPassPhrase, 64);	
-		else {		
+			get_array_val(priv->pmib->dot11WdsInfo.wdsMapingKey[idx], priv->pmib->dot11WdsInfo.wdsPskPassPhrase, 64);
+		else {
 			memset(pchar, 0, sizeof(unsigned char)*40);
 				PasswordHash(priv->pmib->dot11WdsInfo.wdsPskPassPhrase,"REALTEK", strlen("REALTEK"), pchar);
-			memcpy(priv->pmib->dot11WdsInfo.wdsMapingKey[idx], pchar, sizeof(unsigned char)*32);			
+			memcpy(priv->pmib->dot11WdsInfo.wdsMapingKey[idx], pchar, sizeof(unsigned char)*32);
 			}
 		}
 	else
 		memcpy(priv->pmib->dot11WdsInfo.wdsMapingKey[idx], key, sizeof(unsigned char)*32);
-	
+
 	priv->pmib->dot11WdsInfo.wdsMappingKeyLen[idx] = 32;
-	priv->pmib->dot11WdsInfo.wdsMappingKeyLen[idx] |= 0x80000000;  //set bit to protect the key	
+	priv->pmib->dot11WdsInfo.wdsMappingKeyLen[idx] |= 0x80000000;  //set bit to protect the key
 #endif
 }
 
@@ -1168,7 +1127,7 @@ void wds_psk_init(struct rtl8192cd_priv *priv)
 			key = NULL;
 		else
 			key = priv->pmib->dot11WdsInfo.wdsMapingKey[0];
-			
+
 		wds_psk_set(priv, i, key);
 	}
 }
@@ -1178,7 +1137,7 @@ void hapd_set_wdskey(struct net_device *dev, char *wdsPskPassPhrase, char *ssid,
 	int idx = 0;
 	unsigned char pchar[40];
 
-	memcpy(priv->pmib->dot11WdsInfo.wdsPskPassPhrase, wdsPskPassPhrase, strlen(wdsPskPassPhrase));	
+	memcpy(priv->pmib->dot11WdsInfo.wdsPskPassPhrase, wdsPskPassPhrase, strlen(wdsPskPassPhrase));
 	priv->pmib->dot11WdsInfo.wdsPskPassPhrase[strlen(wdsPskPassPhrase)] = '\0';
 
 	memset(pchar, 0, sizeof(unsigned char)*40);
@@ -1186,9 +1145,9 @@ void hapd_set_wdskey(struct net_device *dev, char *wdsPskPassPhrase, char *ssid,
 
 	for(idx =0; idx<wds_num; idx++)
 	{
-		memcpy(priv->pmib->dot11WdsInfo.wdsMapingKey[idx], pchar, sizeof(unsigned char)*32);		
+		memcpy(priv->pmib->dot11WdsInfo.wdsMapingKey[idx], pchar, sizeof(unsigned char)*32);
 		priv->pmib->dot11WdsInfo.wdsMappingKeyLen[idx] = 32;
-		priv->pmib->dot11WdsInfo.wdsMappingKeyLen[idx] |= 0x80000000;  //set bit to protect the key	
+		priv->pmib->dot11WdsInfo.wdsMappingKeyLen[idx] |= 0x80000000;  //set bit to protect the key
 	}
 
 }
@@ -1306,7 +1265,7 @@ int psk_indicate_evt(struct rtl8192cd_priv *priv, int id, unsigned char *mac, un
 	case DOT11_EVENT_MIC_FAILURE:
 		// do nothing
 		break;
-		
+
 	}
 
 			return 0;

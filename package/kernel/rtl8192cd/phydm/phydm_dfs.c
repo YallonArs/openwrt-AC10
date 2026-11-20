@@ -1,7 +1,7 @@
 /******************************************************************************
  *
  * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
- *                                        
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -110,10 +110,10 @@ VOID phydm_radar_detect_enable(PVOID pDM_VOID)
 		}
 
 	} else if (pDM_Odm->SupportICType & (ODM_RTL8814A | ODM_RTL8822B)) {
-	
+
 		ODM_SetBBReg(pDM_Odm, 0x814, 0x3fffffff, 0x04cc4d10);
 		ODM_SetBBReg(pDM_Odm, 0x834, bMaskByte0, 0x06);
-		
+
 		/* 8822B only, when BW = 20M, DFIR output is 40Mhz, but DFS input is 80MMHz, so it need to upgrade to 80MHz */
 		if (pDM_Odm->SupportICType & ODM_RTL8822B) {
 			if (pDM_Odm->pBandWidth == ODM_BW20M)
@@ -223,10 +223,12 @@ phydm_dfs_debug(
 	IN		u4Byte		*_out_len
 	)
 {
+	#if defined(CONFIG_PHYDM_DFS_MASTER)
 	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
 	u4Byte used = *_used;
 	u4Byte out_len = *_out_len;
-
+	#endif
+	
 	switch (argv[0]) {
 	case 1:
 		#if defined(CONFIG_PHYDM_DFS_MASTER)
