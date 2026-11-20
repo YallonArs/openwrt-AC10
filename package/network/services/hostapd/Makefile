@@ -197,6 +197,7 @@ define Package/wpad/Default
   CONFLICTS:=$(HOSTAPD_PROVIDERS) $(SUPPLICANT_PROVIDERS)
   HOSTAPD_PROVIDERS+=$(1)
   SUPPLICANT_PROVIDERS+=$(1)
+  DEPENDS+=+libnl-tiny
 endef
 
 define Package/wpad

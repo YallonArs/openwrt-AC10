@@ -27,6 +27,7 @@ iwpriv wlan1 set_mib shortGI20M=1
 iwpriv wlan1 set_mib ldpc=1
 iwpriv wlan1 set_mib ampdu=1
 iwpriv wlan1 set_mib coexist=1
+iwpriv wlan1 set_mib manual_edca=1
 
 
 iwpriv wlan0 set_mib pwrdiff_40BW2S_20BW2S_A=$HW_WLAN0_TX_POWER_DIFF_5G_40BW2S_20BW2S_A

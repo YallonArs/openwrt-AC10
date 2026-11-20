@@ -258,7 +258,7 @@ foreach my $mirror (@ARGV) {
 }
 
 #push @mirrors, 'https://mirror1.openwrt.org';
-push @mirrors, 'https://sources.lede-project.org';
+push @mirrors, 'https://sources.openwrt.org';
 push @mirrors, 'https://mirror2.openwrt.org/sources';
 push @mirrors, 'https://downloads.openwrt.org/sources';
 
